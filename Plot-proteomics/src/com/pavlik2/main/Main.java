@@ -22,21 +22,26 @@ import com.pavlik2.gui.GUI;
 
 public class Main {
 
-	/**
-	 * @param args
-	 */
+	static GUI gui;
+
 	public static void main(String[] args) {
 
 		{
+			gui = new GUI();
+			while (true)
+				try {
 
-			try {
+					while (gui.next)
+						Thread.sleep(1000);
+					gui.action();
+					// Processing t = new Processing(new File(
+					// "trans_contour_plot2.txt"), gui);
+					gui.next = true;
+					// t.readANDtransform();
+				} catch (Exception e) {
 
-				new GUI();
-
-			} catch (Exception e) {
-
-				e.printStackTrace();
-			}
+					e.printStackTrace();
+				}
 		}
 	}
 

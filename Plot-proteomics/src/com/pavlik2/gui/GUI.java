@@ -130,58 +130,65 @@ public class GUI {
 	public JComboBox<String> choice = new JComboBox<String>();
 	public JButton button = new JButton("Start Computation");
 
+	public void action() {
+		if (display.isSelected() || writeFile.isSelected()) {
+
+			long l1 = System.currentTimeMillis();
+			File file = choose();
+			if (file != null)
+				try {
+					Processing t = new Processing(file, (GUI) GUI.this);
+
+					t.readANDtransform();
+					if (writeFile.isSelected())
+						t.writeTofile("output.csv");
+
+					if (display.isSelected()) {
+						switch (choice.getSelectedIndex()) {
+						case 0:
+							ImageProcessing.displayImage(t.arrayToDisplay, 500);
+							break;
+						case 1:
+							ImageProcessing
+									.displayImage(t.arrayToDisplay, 1000);
+							break;
+						case 2:
+							ImageProcessing
+									.displayImage(t.arrayToDisplay, 2000);
+							break;
+						default:
+							ImageProcessing.displayImage(t.arrayToDisplay);
+							break;
+						}
+					}
+				}
+
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+			System.out.println("Terminated");
+			long l2 = System.currentTimeMillis();
+			System.out.println("Time executed: " + (l2 - l1) + "ms");
+		} else
+			JOptionPane.showMessageDialog(button,
+					"Select one of following: display image or write file",
+					"Invalid selection", 1);
+	}
+
+	public boolean next = true;
+
 	void setTextArea() {
 		button.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
-				if (display.isSelected() || writeFile.isSelected()) {
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						next = false;
+					}
+				});
 
-					long l1 = System.currentTimeMillis();
-					File file = choose();
-					if (file != null)
-						try {
-							Processing t = new Processing(file, GUI.this);
-
-							t.readANDtransform();
-							if (writeFile.isSelected())
-								t.writeTofile("output.csv");
-
-							if (display.isSelected()) {
-								switch (choice.getSelectedIndex()) {
-								case 0:
-									ImageProcessing.displayImage(
-											t.arrayToDisplay, 500);
-									break;
-								case 1:
-									ImageProcessing.displayImage(
-											t.arrayToDisplay, 1000);
-									break;
-								case 2:
-									ImageProcessing.displayImage(
-											t.arrayToDisplay, 2000);
-									break;
-								default:
-									ImageProcessing
-											.displayImage(t.arrayToDisplay);
-									break;
-								}
-							}
-						}
-
-						catch (Exception e) {
-							e.printStackTrace();
-						}
-					System.out.println("Terminated");
-					long l2 = System.currentTimeMillis();
-					System.out.println("Time executed: " + (l2 - l1) + "ms");
-				} else
-					JOptionPane
-							.showMessageDialog(
-									button,
-									"Select one of following: display image or write file",
-									"Invalid selection", 1);
 			};
 
 		});
