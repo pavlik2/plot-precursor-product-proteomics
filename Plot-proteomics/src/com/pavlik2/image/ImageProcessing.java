@@ -32,25 +32,35 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import com.pavlik2.processing.Processing;
+
 public class ImageProcessing {
 
-	public ImageProcessing() {
+	public static void displayImage(int[][] arrayToDisplay, boolean write,
+			String[] rowDescr) throws IOException {
+		double scaling = 1.0;
 
+		if (rowDescr != null)
+			displayImage(arrayToDisplay, scaling, write, rowDescr[0],
+					rowDescr[1]);
+		else
+			displayImage(arrayToDisplay, scaling, write, null, null);
 	}
 
-	public static void displayImage(int[][] arrayToDisplay, int resolution)
-			throws IOException {
+	public static void displayImage(int[][] arrayToDisplay, int resolution,
+			boolean write, String[] rowDescr) throws IOException {
 		double scaling = Math.min(arrayToDisplay.length,
 				arrayToDisplay[0].length) / resolution;
-		displayImage(arrayToDisplay, scaling);
+
+		if (rowDescr != null)
+			displayImage(arrayToDisplay, scaling, write, rowDescr[0],
+					rowDescr[1]);
+		else
+			displayImage(arrayToDisplay, scaling, write, null, null);
 	}
 
-	public static void displayImage(int[][] arrayToDisplay) throws IOException {
-		displayImage(arrayToDisplay, 1.0);
-	}
-
-	public static void displayImage(int[][] arrayToDisplay, double scaling)
-			throws IOException {
+	public static void displayImage(int[][] arrayToDisplay, double scaling,
+			boolean write, String xDef, String yDef) throws IOException {
 
 		int dataXlength = arrayToDisplay.length;
 
@@ -59,9 +69,10 @@ public class ImageProcessing {
 		int HEIGHT = (int) (dataYlength / scaling) + 1;
 		int WIDTH = (int) (dataXlength / scaling) + 1;
 
-		int rows = 200;
-		final BufferedImage img = new BufferedImage(WIDTH + rows,
-				HEIGHT + rows, BufferedImage.TYPE_INT_RGB);
+		int rows = 150;
+
+		final BufferedImage img = new BufferedImage(WIDTH + rows, HEIGHT + rows
+				- 50, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = (Graphics2D) img.getGraphics();
 
 		g.setBackground(Color.white);
@@ -89,6 +100,9 @@ public class ImageProcessing {
 
 			}
 
+			if (write)
+				Processing.writeTofileCSV("output_resolution.csv", colorMap);
+
 			for (int i = 0; i < WIDTH; i++) {
 				for (int j = 0; j < HEIGHT; j++) {
 					g.setColor(new Color(colorMap[i][j]));
@@ -98,15 +112,28 @@ public class ImageProcessing {
 			}
 		}
 
+		drawScreen(img, rows, scaling, WIDTH, HEIGHT, xDef, yDef);
+
+	}
+
+	public static void drawScreen(final BufferedImage img, int rows,
+			double scaling, int WIDTH, int HEIGHT, String xDef, String yDef)
+			throws IOException {
+
+		Graphics2D g = (Graphics2D) img.getGraphics();
+
 		g.setColor(Color.WHITE);
 		int fontSize = (int) Math.log(WIDTH) * 3;
 
 		g.setFont(new Font("Arial", Font.BOLD, fontSize));
-		g.drawString("Precursor m/z", WIDTH / 2, HEIGHT + rows - 10);
+		String precursor = "Precursor m/z";
+		if (xDef != null)
+			precursor = xDef;
+		g.drawString(precursor, img.getWidth() / 2, img.getHeight() - 10);
 
-		int xStart = rows - 50;
+		int xStart = rows - 2;
 
-		int yStart = HEIGHT + 100;
+		int yStart = HEIGHT + 2;
 
 		// draw x axis
 		for (int i = xStart; i < WIDTH + rows; i++) {
@@ -123,28 +150,32 @@ public class ImageProcessing {
 
 		int dividerY = HEIGHT / 10;
 		// ------------------------------------------
-		for (int x = rows; x <= WIDTH + rows; x += dividerX) {
-			for (int y = yStart - 25; y < yStart + 25; y++) {
+		for (int x = xStart; x <= WIDTH + rows; x += dividerX) {
+			for (int y = yStart; y < yStart + 15; y++) {
 				g.fillRect(x, y, 2, 2);
 
 			}
-			String mzValue = Integer.toString((int) ((x - rows) * scaling));
-			g.drawString(mzValue, x - (mzValue.length() - 1)
-					* g.getFont().getSize(), yStart + 50);
+
+			String mzValue = Integer.toString((int) ((x - xStart) * scaling));
+			if (!mzValue.equals("0"))
+				g.drawString(mzValue, x - (mzValue.length() - 1)
+						* g.getFont().getSize(), yStart + 50);
 		}
 
 		// ----------------------------
-		for (int y = HEIGHT; y >= 0; y -= dividerY) {
-			for (int x = xStart - 25; x < xStart + 25; x++) {
+		for (int y = yStart; y >= 0; y -= dividerY) {
+			for (int x = xStart - 15; x < xStart; x++) {
 				g.fillRect(x, y, 2, 2);
 			}
-			String mzValue = Integer.toString((int) ((HEIGHT - y) * scaling));
+			String mzValue = Integer.toString((int) ((yStart - y) * scaling));
 			g.drawString(mzValue, xStart - 25 - (mzValue.length() - 1)
 					* g.getFont().getSize(), y + 25);
 		}
 
 		int initialHeigth = HEIGHT / 2;
 		String yAxis = "Product m/z";
+		if (yDef != null)
+			yAxis = yDef;
 
 		for (String t : yAxis.split("(?!^)")) {
 
@@ -171,7 +202,7 @@ public class ImageProcessing {
 			}
 		};
 
-		panel.setPreferredSize(new Dimension(WIDTH + rows, HEIGHT + rows));
+		panel.setPreferredSize(new Dimension(img.getWidth(), img.getHeight()));
 
 		t.setSize(w, h);
 		t.add(panel);

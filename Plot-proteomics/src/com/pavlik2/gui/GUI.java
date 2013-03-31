@@ -39,6 +39,7 @@ import javax.swing.filechooser.FileFilter;
 
 import com.pavlik2.image.ImageProcessing;
 import com.pavlik2.processing.Processing;
+import com.pavlik2.processing.ProcessingLowMemory;
 
 /**
  * @author pavel
@@ -48,6 +49,8 @@ public class GUI {
 	public GUI() {
 		setTextArea();
 		progress.setVisible(true);
+		display.setSelected(true);
+		// display.setEnabled(false);
 	}
 
 	public File choose() {
@@ -94,6 +97,14 @@ public class GUI {
 		});
 	}
 
+	public void setProgress(final int value) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				progress.setValue(value);
+			}
+		});
+	}
+
 	private void updateTextArea(final String text) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -130,45 +141,94 @@ public class GUI {
 	public JComboBox<String> choice = new JComboBox<String>();
 	public JButton button = new JButton("Start Computation");
 
-	public void action() {
-		if (display.isSelected() || writeFile.isSelected()) {
+	private void processLowMemory(File file) {
+		long l1 = System.currentTimeMillis();
 
-			long l1 = System.currentTimeMillis();
-			File file = choose();
-			if (file != null)
-				try {
-					Processing t = new Processing(file, (GUI) GUI.this);
+		if (file != null)
+			try {
+				ProcessingLowMemory t = new ProcessingLowMemory(file,
+						(GUI) GUI.this);
 
-					t.readANDtransform();
-					if (writeFile.isSelected())
-						t.writeTofile("output.csv");
-
-					if (display.isSelected()) {
-						switch (choice.getSelectedIndex()) {
-						case 0:
-							ImageProcessing.displayImage(t.arrayToDisplay, 500);
-							break;
-						case 1:
-							ImageProcessing
-									.displayImage(t.arrayToDisplay, 1000);
-							break;
-						case 2:
-							ImageProcessing
-									.displayImage(t.arrayToDisplay, 2000);
-							break;
-						default:
-							ImageProcessing.displayImage(t.arrayToDisplay);
-							break;
-						}
+				if (display.isSelected()) {
+					switch (choice.getSelectedIndex()) {
+					case 0:
+						t.processLowMemory(writeFile.isSelected(),
+								display.isSelected(), 512);
+						break;
+					case 1:
+						t.processLowMemory(writeFile.isSelected(),
+								display.isSelected(), 1024);
+						break;
+					case 2:
+						t.processLowMemory(writeFile.isSelected(),
+								display.isSelected(), 2048);
+						break;
+					default:
+						t.processLowMemory(writeFile.isSelected(),
+								display.isSelected(), 0);
+						break;
 					}
 				}
+			}
 
-				catch (Exception e) {
-					e.printStackTrace();
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		System.out.println("Terminated");
+		long l2 = System.currentTimeMillis();
+		System.out.println("Time executed: " + (l2 - l1) + "ms");
+	}
+
+	private void processFullMemory(File file) {
+		long l1 = System.currentTimeMillis();
+
+		if (file != null)
+			try {
+				Processing t = new Processing(file, (GUI) GUI.this);
+
+				t.readANDtransform();
+				if (writeFile.isSelected())
+					t.writeTofile("output.csv");
+
+				if (display.isSelected()) {
+					switch (choice.getSelectedIndex()) {
+					case 0:
+						ImageProcessing.displayImage(t.arrayToDisplay, 512,
+								writeFile.isSelected(), t.rowDescription);
+						break;
+					case 1:
+						ImageProcessing.displayImage(t.arrayToDisplay, 1024,
+								writeFile.isSelected(), t.rowDescription);
+						break;
+					case 2:
+						ImageProcessing.displayImage(t.arrayToDisplay, 2048,
+								writeFile.isSelected(), t.rowDescription);
+						break;
+					default:
+						ImageProcessing.displayImage(t.arrayToDisplay,
+								writeFile.isSelected(), t.rowDescription);
+						break;
+					}
 				}
-			System.out.println("Terminated");
-			long l2 = System.currentTimeMillis();
-			System.out.println("Time executed: " + (l2 - l1) + "ms");
+			}
+
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		System.out.println("Terminated");
+		long l2 = System.currentTimeMillis();
+		System.out.println("Time executed: " + (l2 - l1) + "ms");
+	}
+
+	public void action() {
+		if (display.isSelected() || writeFile.isSelected()) {
+			File file = choose();
+			if (Runtime.getRuntime().maxMemory() < file.length() * 2)
+				processLowMemory(file);
+			else
+
+				processFullMemory(file);
+
 		} else
 			JOptionPane.showMessageDialog(button,
 					"Select one of following: display image or write file",

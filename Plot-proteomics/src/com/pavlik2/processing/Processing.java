@@ -36,8 +36,6 @@ public class Processing {
 	File file;
 	public int[][] arrayToDisplay = null;
 
-	private ArrayList<String> tabnames = new ArrayList<String>();
-
 	private ArrayList<int[]> product = new ArrayList<>();
 	private ArrayList<int[]> precursor = new ArrayList<>();
 
@@ -45,6 +43,7 @@ public class Processing {
 	int maxProduct = 0;
 	public GUI gui;
 	ProgBar progress;
+	public String[] rowDescription = null;
 
 	public Processing(File n, GUI gui) {
 		file = n;
@@ -58,6 +57,7 @@ public class Processing {
 
 		System.out.println("You selected file:" + file.getName());
 		progress.reset(file.length());
+
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 
 		int countLines = 0;
@@ -79,8 +79,9 @@ public class Processing {
 			}
 			if (lines.length == 2)
 				if (firstLine) {
-					for (String t : lines)
-						tabnames.add(t);
+					if (!lines[0].equals("precursor_mz")
+							&& !lines[1].equals("product_mz"))
+						rowDescription = lines;
 					firstLine = false;
 				}
 
@@ -172,6 +173,30 @@ public class Processing {
 	}
 
 	public void writeTofile(String name) throws IOException {
+		System.out.println("Writing to file...");
+		File f = new File(name);
+
+		Writer w = new FileWriter(f);
+
+		BufferedWriter writer = new BufferedWriter(w);
+
+		for (int i = 0; i < arrayToDisplay.length; i++) {
+			int jLength = arrayToDisplay[i].length;
+			for (int j = 0; j < jLength; j++) {
+
+				if (j != jLength - 1)
+					writer.write(arrayToDisplay[i][j] + ",");
+				else
+					writer.write(arrayToDisplay[i][j] + "\n");
+			}
+		}
+
+		writer.close();
+
+	}
+
+	public static void writeTofileCSV(String name, int[][] arrayToDisplay)
+			throws IOException {
 		System.out.println("Writing to file...");
 		File f = new File(name);
 
