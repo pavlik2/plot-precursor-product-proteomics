@@ -186,6 +186,9 @@ public class ProcessingLowMemory {
 			if (rowDescription != null)
 				ImageProcessing.drawScreen(img, rows, scaling, WIDTH, HEIGHT,
 						rowDescription[0], rowDescription[1]);
+			else
+				ImageProcessing.drawScreen(img, rows, scaling, WIDTH, HEIGHT,
+						null, null);
 			System.out.println("Done displaying and saving image...");
 		}
 	}

@@ -36,8 +36,8 @@ public class Processing {
 	File file;
 	public int[][] arrayToDisplay = null;
 
-	private ArrayList<int[]> product = new ArrayList<>();
-	private ArrayList<int[]> precursor = new ArrayList<>();
+	private ArrayList<int[]> product = new ArrayList<int[]>();
+	private ArrayList<int[]> precursor = new ArrayList<int[]>();
 
 	int maxPrecursor = 0;
 	int maxProduct = 0;

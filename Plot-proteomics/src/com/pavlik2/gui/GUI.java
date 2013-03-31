@@ -223,11 +223,11 @@ public class GUI {
 	public void action() {
 		if (display.isSelected() || writeFile.isSelected()) {
 			File file = choose();
-			if (Runtime.getRuntime().maxMemory() < file.length() * 2)
-				processLowMemory(file);
-			else
+			// if (Runtime.getRuntime().maxMemory() < file.length() * 1.5)
+			processLowMemory(file);
+			// else
 
-				processFullMemory(file);
+			// processFullMemory(file);
 
 		} else
 			JOptionPane.showMessageDialog(button,
