@@ -51,6 +51,12 @@ public class Processing {
 		progress = gui.progress;
 	}
 
+	public static boolean compareToprecursor(String[] lines) {
+
+		return lines[0].matches(".*precursor.*")
+				&& lines[1].matches(".*product.*");
+	}
+
 	public void readANDtransform() throws Exception {
 
 		String lineT;
@@ -79,8 +85,7 @@ public class Processing {
 			}
 			if (lines.length == 2)
 				if (firstLine) {
-					if (!lines[0].equals("precursor_mz")
-							&& !lines[1].equals("product_mz"))
+					if (compareToprecursor(lines))
 						rowDescription = lines;
 					firstLine = false;
 				}

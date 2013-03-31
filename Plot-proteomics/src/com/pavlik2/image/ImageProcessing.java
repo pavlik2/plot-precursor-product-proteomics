@@ -182,7 +182,9 @@ public class ImageProcessing {
 			g.drawString(t, 0, initialHeigth);
 			initialHeigth += g.getFont().getSize();
 		}
-		JFrame frame = new JFrame("(c) Pavel Kartashev pavlik2@gmail.com");
+
+		JFrame frame = new JFrame(
+				" Plot-proteomatic (c) Pavel Kartashev pavlik2@gmail.com");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		ScrollPane t = new ScrollPane();
 		final int h = java.awt.Toolkit.getDefaultToolkit().getScreenSize().height;

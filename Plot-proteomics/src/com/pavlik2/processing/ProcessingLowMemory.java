@@ -59,8 +59,7 @@ public class ProcessingLowMemory {
 			}
 			if (lines.length == 2)
 				if (firstLine) {
-					if (!lines[0].equals("precursor_mz")
-							&& !lines[1].equals("product_mz"))
+					if (Processing.compareToprecursor(lines))
 						rowDescription = lines;
 					firstLine = false;
 				}
