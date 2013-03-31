@@ -130,8 +130,16 @@ public class Processing {
 			countLines++;
 		}
 		gui.updateProgress(length);
-		this.product.add(product);
-		this.precursor.add(precursor);
+		int[] array = new int[countVariables];
+		int[] array2 = new int[countVariables];
+
+		for (int i = 0; i < countVariables; i++) {
+			array[i] = product[i];
+			array2[i] = precursor[i];
+
+		}
+		this.product.add(array);
+		this.precursor.add(array2);
 
 		product = null;
 		precursor = null;
